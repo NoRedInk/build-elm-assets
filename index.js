@@ -10,7 +10,7 @@ function collectAssets(config, callback) {
   let assets = [];
   dive(
     assetsPath,
-    function(err, file, stat) {
+    (err, file, stat) => {
       if (err) throw new Error(err);
 
       const fileName = replacePath(file);
@@ -19,9 +19,7 @@ function collectAssets(config, callback) {
       const elmName = createElmName(fileName);
       assets.push({ url, elmName });
     },
-    function() {
-      callback(assets);
-    }
+    () => callback(assets)
   );
 }
 
@@ -52,7 +50,7 @@ function writeElmFile(config, assets, callback) {
       if (err) callback(err);
       callback(
         null,
-        `Wrote ${outputPath}/${moduleNamespace}/Assets.elm (${assets.length} image assets)`
+        `Wrote ${path.join(outputPath, moduleNamespace, "Assets.elm")} (${assets.length} image assets)`
       );
     }
   );
@@ -78,8 +76,10 @@ import AssetPath exposing (Asset(AssetPath))
 `;
 
 module.exports = {
+  // TODO check config
   buildElmAssets: (config, callback) =>
     collectAssets(config, assets => writeElmFile(config, assets, callback)),
   createElmName,
-  collectAssets
+  collectAssets,
+  writeElmFile
 };
