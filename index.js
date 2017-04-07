@@ -8,7 +8,6 @@ const handlebars = require("handlebars");
 function collectAssets(config, callback) {
   const { assetsPath, replacePath, buildUrl } = config;
   let assets = [];
-
   dive(
     assetsPath,
     function(err, file, stat) {
@@ -28,13 +27,12 @@ function collectAssets(config, callback) {
 
 function createElmName(fileName) {
   const elmName = fileName
-    .replace(/\..*/, "")
-    .replace(/[@]/, "_")
     .split("/")
-    .map(function(s) {
-      return camelCase(s);
-    })
-    .join("_");
+    .map(s => s.split("."))
+    .reduce((i, acc) => i.concat(acc))
+    .map(s => camelCase(s))
+    .join("_")
+    .replace("@", "_");
   if (elmName.match(/^[0-9]/)) {
     return "img" + elmName;
   } else {
@@ -79,6 +77,8 @@ import AssetPath exposing (Asset(AssetPath))
 {{/each}}
 `;
 
-module.exports = function(config, callback) {
-  collectAssets(config, assets => writeElmFile(config, assets, callback));
+module.exports = {
+  buildElmAssets: (config, callback) =>
+    collectAssets(config, assets => writeElmFile(config, assets, callback)),
+  createElmName
 };
