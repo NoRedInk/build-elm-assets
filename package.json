@@ -4,7 +4,8 @@
   "description": "builds a elm file containing all paths of a assets directory",
   "main": "index.js",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "dev": "find . -name '*.js' | entr ava"
   },
   "repository": {
     "type": "git",
