@@ -1,7 +1,10 @@
 import test from "ava";
-import { createElmName } from "./index.js";
+import mock from "mock-require";
+import buildElmAssets from "./index.js";
 
 test("createElmName", t => {
+  const { createElmName } = buildElmAssets;
+
   let fileName = "folder/foo_bar.png";
   let expected = "folder_fooBar_png";
   t.is(createElmName(fileName), expected);
@@ -21,4 +24,31 @@ test("createElmName", t => {
   fileName = "Foo@2x.png";
   expected = "foo_2x_png";
   t.is(createElmName(fileName), expected);
+});
+
+test("collectAssets", t => {
+  mock("dive", function(path, cb, done) {
+    ["foo.png", "bar.png"].map(i => cb(null, i));
+    done();
+  });
+  mock("md5-file", { sync: () => "HASH" });
+  let buildElmAssets = mock.reRequire("./index.js");
+  const { collectAssets } = buildElmAssets;
+  const config = {
+    assetsPath: "app/assets/",
+    replacePath: s => s.replace("app", "_app_"),
+    buildUrl: (fileName, hash) => fileName.replace(/\./, "-" + hash + ".")
+  };
+  const expected = [
+    {
+      elmName: "foo_png",
+      url: "foo-HASH.png"
+    },
+    {
+      elmName: "bar_png",
+      url: "bar-HASH.png"
+    }
+  ];
+  const callback = actual => t.deepEqual(actual, expected);
+  collectAssets(config, callback);
 });

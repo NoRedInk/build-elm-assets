@@ -80,5 +80,6 @@ import AssetPath exposing (Asset(AssetPath))
 module.exports = {
   buildElmAssets: (config, callback) =>
     collectAssets(config, assets => writeElmFile(config, assets, callback)),
-  createElmName
+  createElmName,
+  collectAssets
 };
