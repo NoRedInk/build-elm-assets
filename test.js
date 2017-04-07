@@ -26,14 +26,16 @@ test("createElmName", t => {
   t.is(createElmName(fileName), expected);
 });
 
-test("collectAssets", t => {
+function mockModule() {
   mock("dive", function(path, cb, done) {
     ["foo.png", "bar.png"].map(i => cb(null, i));
     done();
   });
   mock("md5-file", { sync: () => "HASH" });
-  let buildElmAssets = mock.reRequire("./index.js");
-  const { collectAssets } = buildElmAssets;
+  return mock.reRequire("./index.js");
+}
+test("collectAssets", t => {
+  const { collectAssets } = mockModule();
   const config = {
     assetsPath: "app/assets/",
     replacePath: s => s.replace("app", "_app_"),
