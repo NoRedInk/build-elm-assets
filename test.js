@@ -52,7 +52,26 @@ test("collectAssets", t => {
       url: "bar-HASH.png"
     }
   ];
-  const callback = actual => t.deepEqual(actual, expected);
+  const callback = (err, actual) => t.deepEqual(actual, expected);
+  collectAssets(config, callback);
+});
+
+test("collectAssets should raise an error if there are duplications", t => {
+  const { collectAssets } = mockModule([
+    "foo.png",
+    "foo.png",
+    "testFile.svg",
+    "test_file.svg"
+  ]);
+  const config = {
+    assetsPath: "app/assets/",
+    replacePath: s => s.replace("app", "_app_"),
+    buildUrl: (fileName, hash) => fileName.replace(/\./, "-" + hash + ".")
+  };
+  const expected = new Error(
+    `I had troubles creating a uniq \`elmName\` for: testFile_svg, testFile_svg, foo_png, foo_png.`
+  );
+  const callback = err => t.deepEqual(err, expected);
   collectAssets(config, callback);
 });
 
