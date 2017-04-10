@@ -100,3 +100,28 @@ test("writeElmFile", t => {
   const done = (err, actual) => t.is(actual, expected);
   writeElmFile(config, assets, done);
 });
+
+test("validateConfig should throw when the config isn't correct", t => {
+  const config = {};
+  const expected = err => {
+    t.regex(err.message, /assetsPath/);
+    t.regex(err.message, /outputPath/);
+    t.regex(err.message, /moduleNamespace/);
+    t.regex(err.message, /replacePath/);
+    t.regex(err.message, /buildUrl/);
+    return true;
+  };
+  const callback = () => t.fail();
+  t.throws(() => buildElmAssets.buildElmAssets(config, callback), expected);
+});
+
+test("validateConfig shouldn't throw when config is okay", t => {
+  const config = {
+    assetsPath: "path",
+    outputPath: "path",
+    moduleNamespace: "NRI",
+    replacePath: () => true,
+    buildUrl: () => true
+  };
+  t.notThrows(() => buildElmAssets.validateConfig(config));
+});

@@ -93,6 +93,34 @@ function writeElmFile(config, assets, callback) {
   );
 }
 
+function validateConfig(config) {
+  const errors = [];
+  if (typeof config.assetsPath !== "string") {
+    errors.push(
+      'You need to define `assetsPath` as a string. i.e. "app/assets/images"'
+    );
+  }
+  if (typeof config.outputPath !== "string") {
+    errors.push(
+      'You need to define `outputPath` as a string. i.e. "src/generated/"'
+    );
+  }
+  if (typeof config.outputPath !== "string") {
+    errors.push('You need to define `moduleNamespace` as a string. i.e. "Nri"');
+  }
+  if (typeof config.replacePath !== "function") {
+    errors.push(
+      "You need to define `replacePath` as a string. i.e. \"fileName => fileName.replace(/app/assets/, '')\""
+    );
+  }
+  if (typeof config.buildUrl !== "function") {
+    errors.push(
+      "You need to define `buildUrl` as a string. i.e. \"(fileName, hash) => 'assets/' + hash + '-' + fileName\""
+    );
+  }
+  if (errors.length > 0) throw new Error(errors.join("\n"));
+}
+
 var elmTemplate = `module {{moduleName}} exposing (..)
 
 {-|
@@ -114,10 +142,13 @@ import AssetPath exposing (Asset(AssetPath))
 
 module.exports = {
   // TODO check config
-  buildElmAssets: (config, callback) =>
+  buildElmAssets: (config, callback) => {
+    validateConfig(config);
     collectAssets(config, (err, assets) =>
-      writeElmFile(config, assets, callback)),
+      writeElmFile(config, assets, callback));
+  },
   createElmName,
   collectAssets,
-  writeElmFile
+  writeElmFile,
+  validateConfig
 };
