@@ -16,7 +16,10 @@
     "build",
     "assets"
   ],
-  "author": "schtoeffel",
+  "authors": [
+    "avh4",
+    "schtoeffel"
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/NoRedInk/build-elm-assets/issues"
