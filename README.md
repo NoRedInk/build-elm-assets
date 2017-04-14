@@ -1,6 +1,8 @@
 Build Elm Assets
 ================
 
+[![Build Status](https://travis-ci.org/NoRedInk/build-elm-assets.svg?branch=master)](https://travis-ci.org/NoRedInk/build-elm-assets)
+
 > Generates a file containing assets from a given folder and containing a hash in the urls.
 
 
