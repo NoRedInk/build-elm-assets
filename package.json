@@ -1,6 +1,6 @@
 {
   "name": "build-elm-assets",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "builds a elm file containing all paths of a assets directory",
   "main": "index.js",
   "scripts": {
