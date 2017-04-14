@@ -17,15 +17,15 @@ function collectAssets(config, callback) {
   try {
     dive(
       assetsPath,
-      (err, source) => {
+      (err, copyFrom) => {
         if (err) throw new Error(err);
 
-        const dest = replacePath(source);
-        const hash = md5.sync(source);
-        const url = buildUrl(dest, hash);
-        const elmName = createElmName(dest);
-        moveAssets(source, dest, url, config);
-        assets.push({ url, elmName });
+        const copyTo = replacePath(copyFrom);
+        const hash = md5.sync(copyFrom);
+        const urlWithHash = buildUrl(copyTo, hash);
+        const elmName = createElmName(copyTo);
+        moveAssets(copyFrom, copyTo, urlWithHash, config);
+        assets.push({ urlWithHash, elmName });
       },
       () => checkForDuplications(assets, callback)
     );
@@ -34,10 +34,10 @@ function collectAssets(config, callback) {
   }
 }
 
-function moveAssets(source, dest, link, { assetsOutputPath, assetsLink }) {
+function moveAssets(copyFrom, copyTo, link, { assetsOutputPath, assetsLink }) {
   if (isString(assetsOutputPath)) {
-    const destination = path.join(assetsOutputPath, dest);
-    fs.copySync(source, destination);
+    const destination = path.join(assetsOutputPath, copyTo);
+    fs.copySync(copyFrom, destination);
     if (isString(assetsLink)) {
       fs.ensureSymlinkSync(destination, path.join(assetsLink, link));
     }
@@ -152,7 +152,7 @@ import AssetPath exposing (Asset(AssetPath))
 {-| -}
 {{elmName}} : Asset
 {{elmName}} =
-    AssetPath "{{url}}"
+    AssetPath "{{urlWithHash}}"
 {{/each}}
 `;
 

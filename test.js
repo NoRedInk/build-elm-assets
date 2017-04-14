@@ -46,11 +46,11 @@ test("collectAssets", t => {
   const expected = [
     {
       elmName: "foo_png",
-      url: "foo-HASH.png"
+      urlWithHash: "foo-HASH.png"
     },
     {
       elmName: "bar_png",
-      url: "bar-HASH.png"
+      urlWithHash: "bar-HASH.png"
     }
   ];
   const callback = (err, actual) => t.deepEqual(actual, expected);
@@ -136,8 +136,8 @@ test("writeElmFile", t => {
   };
   const expected = "Wrote src/Nri/Assets.elm (2 image assets)";
   const assets = [
-    { elmName: "img1_png", url: "assets/img1.png" },
-    { elmName: "img2_png", url: "assets/img2.png" }
+    { elmName: "img1_png", urlWithHash: "assets/img1.png" },
+    { elmName: "img2_png", urlWithHash: "assets/img2.png" }
   ];
   const done = (err, actual) => t.is(actual, expected);
   writeElmFile(config, assets, done);
