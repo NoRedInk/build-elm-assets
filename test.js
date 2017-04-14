@@ -1,4 +1,5 @@
 import test from "ava";
+import path from "path";
 import mock from "mock-require";
 import buildElmAssets from "./index.js";
 
@@ -45,11 +46,11 @@ test("collectAssets", t => {
   const expected = [
     {
       elmName: "foo_png",
-      url: "foo-HASH.png"
+      urlWithHash: "foo-HASH.png"
     },
     {
       elmName: "bar_png",
-      url: "bar-HASH.png"
+      urlWithHash: "bar-HASH.png"
     }
   ];
   const callback = (err, actual) => t.deepEqual(actual, expected);
@@ -75,6 +76,47 @@ test("collectAssets should raise an error if there are duplications", t => {
   collectAssets(config, callback);
 });
 
+test("moveAssets", t => {
+  mock("fs-extra", {
+    copySync: (s, d) => {
+      t.deepEqual(s, "app/assets/foo.png");
+      t.deepEqual(d, "public/test/assets/foo.png");
+    },
+    ensureSymlinkSync: (s, d) => {
+      t.deepEqual(s, "public/test/assets/foo.png");
+      t.deepEqual(d, "public/assets/foo-hash.png");
+    }
+  });
+  const { moveAssets } = mock.reRequire("./index.js");
+
+  const config = {
+    assetsOutputPath: "public/test",
+    assetsLink: "public/"
+  };
+  moveAssets(
+    "app/assets/foo.png",
+    "assets/foo.png",
+    "assets/foo-hash.png",
+    config
+  );
+});
+
+test("moveAssets doesn't link or copy if not configured", t => {
+  mock("fs-extra", {
+    copySync: () => t.fail(),
+    ensureSymlinkSync: () => t.fail()
+  });
+  const { moveAssets } = mock.reRequire("./index.js");
+
+  const config = {};
+  moveAssets(
+    "app/assets/foo.png",
+    "assets/foo.png",
+    "assets/foo-hash.png",
+    config
+  );
+  t.pass();
+});
 test("writeElmFile", t => {
   mock("fs-extra", {
     mkdirpSync: p => t.is(p, "src/Nri"),
@@ -94,8 +136,8 @@ test("writeElmFile", t => {
   };
   const expected = "Wrote src/Nri/Assets.elm (2 image assets)";
   const assets = [
-    { elmName: "img1_png", url: "assets/img1.png" },
-    { elmName: "img2_png", url: "assets/img2.png" }
+    { elmName: "img1_png", urlWithHash: "assets/img1.png" },
+    { elmName: "img2_png", urlWithHash: "assets/img2.png" }
   ];
   const done = (err, actual) => t.is(actual, expected);
   writeElmFile(config, assets, done);

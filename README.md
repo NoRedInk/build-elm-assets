@@ -13,6 +13,11 @@ var path = require("path");
 const config = {
   // path to your assets
   assetsPath: path.join("app", "assets", "images"),
+  // asset gets copied to this folder if provided
+  assetsOutputPath: path.join("public/copies"),
+  // link to assetsOutputPath with hash goes here
+  // this is only useful when you copy the file using assetsOutputPath
+  assetsLink: path.join("public"),
   // function to modify the asset path this path will be passed to buildUrl
   replacePath: fileName => fileName.replace(/.*\/app\/assets\/images\//, ""),
   // function to create the url used in the generated file

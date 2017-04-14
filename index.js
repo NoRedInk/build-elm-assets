@@ -4,26 +4,43 @@ const md5 = require("md5-file");
 const camelCase = require("camelcase");
 const fs = require("fs-extra");
 const handlebars = require("handlebars");
+const isString = x => typeof x === "string";
+const isFunction = x => typeof x === "function";
 
 function collectAssets(config, callback) {
-  const { assetsPath, replacePath, buildUrl } = config;
+  const {
+    assetsPath,
+    replacePath,
+    buildUrl
+  } = config;
   let assets = [];
   try {
     dive(
       assetsPath,
-      (err, file) => {
+      (err, copyFrom) => {
         if (err) throw new Error(err);
 
-        const fileName = replacePath(file);
-        const hash = md5.sync(file);
-        const url = buildUrl(fileName, hash);
-        const elmName = createElmName(fileName);
-        assets.push({ url, elmName });
+        const copyTo = replacePath(copyFrom);
+        const hash = md5.sync(copyFrom);
+        const urlWithHash = buildUrl(copyTo, hash);
+        const elmName = createElmName(copyTo);
+        moveAssets(copyFrom, copyTo, urlWithHash, config);
+        assets.push({ urlWithHash, elmName });
       },
       () => checkForDuplications(assets, callback)
     );
   } catch (e) {
     callback(e);
+  }
+}
+
+function moveAssets(copyFrom, copyTo, link, { assetsOutputPath, assetsLink }) {
+  if (isString(assetsOutputPath)) {
+    const destination = path.join(assetsOutputPath, copyTo);
+    fs.copySync(copyFrom, destination);
+    if (isString(assetsLink)) {
+      fs.ensureSymlinkSync(destination, path.join(assetsLink, link));
+    }
   }
 }
 
@@ -92,28 +109,27 @@ function writeElmFile(config, assets, callback) {
     }
   );
 }
-
 function validateConfig(config) {
   const errors = [];
-  if (typeof config.assetsPath !== "string") {
+  if (!isString(config.assetsPath)) {
     errors.push(
       'You need to define `assetsPath` as a string. i.e. "app/assets/images"'
     );
   }
-  if (typeof config.outputPath !== "string") {
+  if (!isString(config.outputPath)) {
     errors.push(
       'You need to define `outputPath` as a string. i.e. "src/generated/"'
     );
   }
-  if (typeof config.outputPath !== "string") {
+  if (!isString(config.outputPath)) {
     errors.push('You need to define `moduleNamespace` as a string. i.e. "Nri"');
   }
-  if (typeof config.replacePath !== "function") {
+  if (!isFunction(config.replacePath)) {
     errors.push(
       "You need to define `replacePath` as a string. i.e. \"fileName => fileName.replace(/app/assets/, '')\""
     );
   }
-  if (typeof config.buildUrl !== "function") {
+  if (!isFunction(config.buildUrl)) {
     errors.push(
       "You need to define `buildUrl` as a string. i.e. \"(fileName, hash) => 'assets/' + hash + '-' + fileName\""
     );
@@ -136,7 +152,7 @@ import AssetPath exposing (Asset(AssetPath))
 {-| -}
 {{elmName}} : Asset
 {{elmName}} =
-    AssetPath "{{url}}"
+    AssetPath "{{urlWithHash}}"
 {{/each}}
 `;
 
@@ -147,8 +163,9 @@ module.exports = {
     collectAssets(config, (err, assets) =>
       writeElmFile(config, assets, callback));
   },
-  createElmName,
   collectAssets,
-  writeElmFile,
-  validateConfig
+  createElmName,
+  moveAssets,
+  validateConfig,
+  writeElmFile
 };
