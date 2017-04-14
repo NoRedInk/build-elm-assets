@@ -24,7 +24,7 @@ function collectAssets(config, callback) {
         const hash = md5.sync(copyFrom);
         const urlWithHash = buildUrl(copyTo, hash);
         const elmName = createElmName(copyTo);
-        moveAssets(copyFrom, copyTo, urlWithHash, config);
+        copyAsset(copyFrom, urlWithHash, config);
         assets.push({ urlWithHash, elmName });
       },
       () => checkForDuplications(assets, callback)
@@ -34,14 +34,10 @@ function collectAssets(config, callback) {
   }
 }
 
-function moveAssets(copyFrom, copyTo, link, { assetsOutputPath, assetsLink }) {
-  if (isString(assetsOutputPath)) {
-    const destination = path.join(assetsOutputPath, copyTo);
-    fs.copySync(copyFrom, destination);
-    if (isString(assetsLink)) {
-      fs.ensureSymlinkSync(destination, path.join(assetsLink, link));
-    }
-  }
+function copyAsset(copyFrom, copyTo, { assetsOutputPath }) {
+  if (!isString(assetsOutputPath)) return;
+  const destination = path.join(assetsOutputPath, copyTo);
+  fs.copySync(copyFrom, destination);
 }
 
 function checkForDuplications(assets, callback) {
@@ -165,7 +161,7 @@ module.exports = {
   },
   collectAssets,
   createElmName,
-  moveAssets,
+  copyAsset,
   validateConfig,
   writeElmFile
 };

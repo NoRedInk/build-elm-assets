@@ -76,45 +76,29 @@ test("collectAssets should raise an error if there are duplications", t => {
   collectAssets(config, callback);
 });
 
-test("moveAssets", t => {
+test("copyAsset", t => {
   mock("fs-extra", {
     copySync: (s, d) => {
       t.deepEqual(s, "app/assets/foo.png");
-      t.deepEqual(d, "public/test/assets/foo.png");
-    },
-    ensureSymlinkSync: (s, d) => {
-      t.deepEqual(s, "public/test/assets/foo.png");
-      t.deepEqual(d, "public/assets/foo-hash.png");
+      t.deepEqual(d, "public/test/assets/foo-hash.png");
     }
   });
-  const { moveAssets } = mock.reRequire("./index.js");
+  const { copyAsset } = mock.reRequire("./index.js");
 
   const config = {
-    assetsOutputPath: "public/test",
-    assetsLink: "public/"
+    assetsOutputPath: "public/test"
   };
-  moveAssets(
-    "app/assets/foo.png",
-    "assets/foo.png",
-    "assets/foo-hash.png",
-    config
-  );
+  copyAsset("app/assets/foo.png", "assets/foo-hash.png", config);
 });
 
-test("moveAssets doesn't link or copy if not configured", t => {
+test("copyAsset doesn't copy if not configured", t => {
   mock("fs-extra", {
-    copySync: () => t.fail(),
-    ensureSymlinkSync: () => t.fail()
+    copySync: () => t.fail()
   });
-  const { moveAssets } = mock.reRequire("./index.js");
+  const { copyAsset } = mock.reRequire("./index.js");
 
   const config = {};
-  moveAssets(
-    "app/assets/foo.png",
-    "assets/foo.png",
-    "assets/foo-hash.png",
-    config
-  );
+  copyAsset("app/assets/foo.png", "assets/foo-hash.png", config);
   t.pass();
 });
 test("writeElmFile", t => {
