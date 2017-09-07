@@ -156,8 +156,17 @@ module.exports = {
   // TODO check config
   buildElmAssets: (config, callback) => {
     validateConfig(config);
-    collectAssets(config, (err, assets) =>
-      writeElmFile(config, assets, callback));
+    collectAssets(config, (err, assets) => {
+      var sortedAssets =
+        assets.sort(function(a, b) {
+          if (a.elmName < b.elmName)
+            return -1;
+	  if (a.elmName > b.elmName)
+	    return 1;
+	  return 0;
+       });
+      writeElmFile(config, sortedAssets, callback);
+    });
   },
   collectAssets,
   createElmName,
