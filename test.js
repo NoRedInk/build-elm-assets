@@ -36,7 +36,7 @@ function mockModule(files) {
   return mock.reRequire("./index.js");
 }
 
-test("collectAssets", t => {
+test("collectAssets should invoke the callback with sorted assets", t => {
   const { collectAssets } = mockModule(["foo.png", "bar.png"]);
   const config = {
     assetsPath: "app/assets/",
@@ -45,12 +45,12 @@ test("collectAssets", t => {
   };
   const expected = [
     {
-      elmName: "foo_png",
-      urlWithHash: "foo-HASH.png"
-    },
-    {
       elmName: "bar_png",
       urlWithHash: "bar-HASH.png"
+    },
+    {
+      elmName: "foo_png",
+      urlWithHash: "foo-HASH.png"
     }
   ];
   const callback = (err, actual) => t.deepEqual(actual, expected);
