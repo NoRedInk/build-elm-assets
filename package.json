@@ -1,7 +1,7 @@
 {
   "name": "build-elm-assets",
   "version": "1.2.0",
-  "description": "builds a elm file containing all paths of a assets directory",
+  "description": "Builds an Elm file containing all paths of assets in a directory",
   "main": "index.js",
   "scripts": {
     "test": "ava",
