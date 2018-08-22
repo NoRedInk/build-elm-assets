@@ -108,8 +108,8 @@ test("writeElmFile", t => {
       t.is(p, "src/Nri/Assets.elm");
       t.regex(content, /img1_png : Asset/);
       t.regex(content, /img2_png : Asset/);
-      t.regex(content, /AssetPath \"assets\/img1.png\"/);
-      t.regex(content, /AssetPath \"assets\/img2.png\"/);
+      t.regex(content, /Asset \"assets\/img1.png\"/);
+      t.regex(content, /Asset \"assets\/img2.png\"/);
       cb();
     }
   });
